@@ -1,0 +1,41 @@
+# Which arms to synthesise. One row = one TimeDiff model.
+# The SLURM array (scripts/slurm/train_array.sbatch) runs row $SLURM_ARRAY_TASK_ID.
+# `python -m ehr_timediff.run --list` prints the rows with their indices.
+#
+# Any HParams field (see ehr_timediff/model.py) can go in `defaults` or on a row,
+# e.g. num_steps, batch_size, learning_rate, hidden, loss_lambda, seed.
+# Other per-row keys: mask_mode (auto|exact|zero), force_zero_mask, num_samples, skip_privacy,
+#   scaling (minmax|robust), clip_percentiles ([lo, hi], for robust; default [0.5, 99.5]).
+#
+# scaling: minmax is TimeDiff's own choice. In arms that still contain impossible
+# readings (raw, and any filter that doesn't touch outliers) it can stop the model
+# learning the vitals entirely; robust clips to a percentile range instead. Use the
+# SAME scaling for every arm you intend to compare. See README "Outliers".
+#
+# Arm names: raw, heart rate, systolic blood pressure, diastolic blood pressure,
+# mean blood pressure, respiration rate, temperature, oxygen saturation,
+# fill missing data, long missing segment, long gap, high invalid data, all vitals.
+#
+# Approximate MIMIC-III `mean` sizes (from the admission-id sidecars):
+#   raw / per-vital / all vitals / fill missing data  46,032
+#   long missing segment 31,029   long gap 20,323   high invalid data 1,369
+
+defaults:
+  num_steps: 700000      # the paper's budget; ~3-4 h per arm on one 5090/H100
+  save_every: 10000      # checkpoint cadence, so a killed job loses at most this much
+  scaling: minmax        # see note above; decide before the sweep
+
+runs:
+  # First sweep: MIMIC-III, mean aggregation, the unfiltered baseline plus the
+  # arms that change the population most.
+  - {dataset: mimic-iii, aggregation: mean, arm: raw}
+  - {dataset: mimic-iii, aggregation: mean, arm: all vitals}
+  - {dataset: mimic-iii, aggregation: mean, arm: fill missing data}
+  - {dataset: mimic-iii, aggregation: mean, arm: long missing segment}
+  - {dataset: mimic-iii, aggregation: mean, arm: long gap}
+  - {dataset: mimic-iii, aggregation: mean, arm: high invalid data}
+
+  # Deviation aggregations need exact masks, i.e. processed_record_ehr.pkl next to
+  # the arm folders. Uncomment once the first sweep looks sane.
+  # - {dataset: mimic-iii, aggregation: standard deviation, arm: raw, mask_mode: exact}
+  # - {dataset: mimic-iii, aggregation: standard deviation, arm: all vitals, mask_mode: exact}

@@ -1,0 +1,10 @@
+# Copy to config/paths.yaml and edit. (EHR_DATA_ROOT / EHR_RUNS_ROOT env vars override this file.)
+
+# The pipeline's Data/ directory: the one that contains mimic-iii/, mimic-iv/, eicu/,
+# each holding processed_record_ehr.pkl and one folder per aggregation method.
+# On nibi this is wherever EHR-Dataset-Processing lives, e.g.:
+data_root: CHANGE_ME/clinical_preprocessing_toolbox/pipelines/EHR-Dataset-Processing/Data
+
+# Where models, synthetic data and results go. Big-ish: ~65 MB per model plus
+# samples. On nibi prefer $SCRATCH or project space over $HOME.
+runs_root: ./runs

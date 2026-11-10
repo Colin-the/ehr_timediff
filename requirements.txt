@@ -1,0 +1,22 @@
+# Bridge + TimeDiff environment. Deliberately separate from the pipeline's cuDF/cuML stack:
+# nothing here needs RAPIDS, and the pickles the pipeline writes are plain torch tensors.
+#
+# torch: install it FIRST with the build that matches your GPU, then this file.
+#   RTX 5090 (Blackwell, sm_120) needs CUDA 12.8+:
+#     pip install torch --index-url https://download.pytorch.org/whl/cu128
+#   nibi (H100): `module load python/3.12 cuda` then pip install torch (the CC wheelhouse build is fine).
+#
+# Versions below are the ones pinned in the old TimeDiff venv (TimeDiff/rebuildVenv.txt) where
+# they existed, relaxed to >= so the CC wheelhouse can satisfy them.
+torch>=2.4
+numpy>=1.26
+pandas>=2.2
+scipy>=1.11
+scikit-learn>=1.4
+accelerate>=1.0
+ema-pytorch>=0.7
+einops>=0.8
+tqdm>=4.66
+pyyaml>=6.0
+matplotlib>=3.8
+pytest>=8.0
