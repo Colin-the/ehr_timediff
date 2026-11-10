@@ -1,0 +1,11 @@
+# Outputs: models, prepared real data, synthetic data. Synthetic data derived from
+# MIMIC/eICU is still covered by the PhysioNet DUA - never push it anywhere public.
+runs/
+logs/
+*.pt
+*.pkl
+*.npy
+.venv/
+__pycache__/
+.pytest_cache/
+config/paths.yaml
